@@ -232,3 +232,47 @@ that means the refresh token is valid for about 7 days.
 If you schedule a mail very close to that limit, the send can fail if Google expires the refresh token before the queued job runs.
 
 In that case, run `sendScheduledMail.js` again before the scheduled day to refresh the authorization.
+
+## Use A JSON File
+
+You can now prepare a file like:
+
+```json
+{
+  "to": "recipient@example.com",
+  "subject": "Hello",
+  "body": "This is my message.",
+  "scheduledAt": "2026-03-20T10:35:00+01:00"
+}
+```
+
+Example file:
+
+```bash
+mail.example.json
+```
+
+Run it with:
+
+```bash
+node runMailJson.js --file mail.json
+```
+
+or:
+
+```bash
+npm run run-mail-json -- --file mail.json
+```
+
+Rules:
+
+* if `scheduledAt` is missing, the mail is sent immediately
+* if `scheduledAt` is in the future, the mail is added to the local queue
+* if `scheduledAt` is in the past, the mail is sent immediately
+* when queued, the script prints both the local date and the ISO timestamp so you can verify the exact send time
+
+To process queued mails automatically while the terminal is closed, install the macOS agent once:
+
+```bash
+npm run install-mail-agent
+```

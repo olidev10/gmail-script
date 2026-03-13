@@ -4,8 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "install-mail-agent": "node installMailAgent.js",
     "mark-read": "node markAsRead.js",
     "process-pending-mails": "node processPendingMails.js",
+    "run-mail-json": "node runMailJson.js",
     "schedule-mail": "node scheduleMailLaunchd.js",
     "send-mail": "node sendScheduledMail.js",
     "test": "echo \"Error: no test specified\" && exit 1"
