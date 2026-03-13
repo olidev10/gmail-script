@@ -39,12 +39,16 @@ function saveToken(tokens) {
   fs.writeFileSync(TOKEN_PATH, JSON.stringify(tokens, null, 2));
 }
 
+function encodeHeaderValue(value) {
+  return `=?UTF-8?B?${Buffer.from(String(value), "utf8").toString("base64")}?=`;
+}
+
 function buildRawMessage({ to, subject, body }) {
   const message = [
     `To: ${to}`,
     "Content-Type: text/plain; charset=utf-8",
     "MIME-Version: 1.0",
-    `Subject: ${subject}`,
+    `Subject: ${encodeHeaderValue(subject)}`,
     "",
     body,
   ].join("\r\n");
