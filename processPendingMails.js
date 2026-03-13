@@ -40,6 +40,13 @@ function listPendingFiles() {
     .sort();
 }
 
+function listPendingJobs() {
+  return listPendingFiles()
+    .map((filePath) => readJson(filePath))
+    .filter((job) => job && job.at)
+    .sort((a, b) => new Date(a.at).getTime() - new Date(b.at).getTime());
+}
+
 function makeArchivePath(baseDir, job) {
   return path.join(baseDir, `${job.id}.json`);
 }
@@ -194,5 +201,6 @@ module.exports = {
   createJob,
   ensureDirectories,
   listPendingFiles,
+  listPendingJobs,
   processDueMails,
 };

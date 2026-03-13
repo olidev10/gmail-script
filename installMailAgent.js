@@ -8,7 +8,7 @@ function main() {
     console.log(`Fichier launchd : ${PLIST_PATH}`);
     console.log(`Label launchd : ${PLIST_LABEL}`);
     console.log(
-      "Les mails en attente seront verifies toutes les 60 secondes et au prochain login."
+      "Les mails en attente seront verifies toutes les 5 secondes et au prochain login."
     );
   } catch (error) {
     console.error("Erreur:", error.message);

@@ -66,6 +66,12 @@ async function sendMail(auth, mail) {
   });
 }
 
+async function getConnectedEmail(auth) {
+  const gmail = google.gmail({ version: "v1", auth });
+  const response = await gmail.users.getProfile({ userId: "me" });
+  return response.data.emailAddress || null;
+}
+
 function applySavedToken(auth) {
   const savedToken = loadSavedToken();
 
@@ -161,6 +167,7 @@ module.exports = {
   loadSavedToken,
   hasSavedToken,
   getAuthorizationUrl,
+  getConnectedEmail,
   exchangeCodeForToken,
   saveToken,
   sendMail,

@@ -6,10 +6,12 @@ const {
   loadCredentials,
   hasSavedToken,
   getAuthorizationUrl,
+  getConnectedEmail,
   exchangeCodeForToken,
 } = require("../gmailClient");
 const { markAllUnreadAsRead } = require("../gmailActions");
-const { createJob, ensureDirectories } = require("../processPendingMails");
+const { createJob, ensureDirectories, listPendingJobs } = require("../processPendingMails");
+const { ensureAgentLoaded, isAgentLoaded } = require("../launchAgent");
 
 const PORT = Number(process.env.PORT || 3000);
 const HOST = process.env.HOST || "127.0.0.1";
@@ -101,6 +103,44 @@ function normalizeDateInput(value) {
   return date;
 }
 
+function formatLocalDate(date) {
+  return new Intl.DateTimeFormat("en-GB", {
+    dateStyle: "full",
+    timeStyle: "long",
+  }).format(date);
+}
+
+async function getDashboardStatus() {
+  const authenticated = hasSavedToken();
+  const pendingJobs = listPendingJobs();
+  const nextJob = pendingJobs[0] || null;
+  let connectedEmail = null;
+
+  if (authenticated) {
+    try {
+      const auth = await authorize(loadCredentials());
+      connectedEmail = await getConnectedEmail(auth);
+    } catch (error) {
+      connectedEmail = null;
+    }
+  }
+
+  return {
+    authenticated,
+    connectedEmail,
+    agentLoaded: isAgentLoaded(),
+    pendingCount: pendingJobs.length,
+    nextJob: nextJob
+      ? {
+          id: nextJob.id,
+          to: nextJob.to,
+          at: nextJob.at,
+          localTime: formatLocalDate(new Date(nextJob.at)),
+        }
+      : null,
+  };
+}
+
 function buildAuthSuccessPage() {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -146,6 +186,11 @@ function buildAuthSuccessPage() {
 async function handleApi(req, res, pathname) {
   if (req.method === "GET" && pathname === "/api/token-status") {
     sendJson(res, 200, { authenticated: hasSavedToken() });
+    return;
+  }
+
+  if (req.method === "GET" && pathname === "/api/dashboard-status") {
+    sendJson(res, 200, await getDashboardStatus());
     return;
   }
 
@@ -204,6 +249,8 @@ async function handleApi(req, res, pathname) {
         at: job.at,
       };
     });
+
+    ensureAgentLoaded();
 
     sendJson(res, 200, {
       success: true,

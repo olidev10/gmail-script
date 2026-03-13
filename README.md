@@ -209,7 +209,7 @@ What this does:
 
 * stores the mail in a local queue in `.scheduled-mails/pending`
 * installs a macOS `launchd` agent in `~/Library/LaunchAgents`
-* checks the queue every 60 seconds while you are logged in
+* checks the queue every 5 seconds while you are logged in
 * sends overdue mails on the next login if the Mac was off at the planned time
 * lets you close the terminal as soon as the command finishes
 

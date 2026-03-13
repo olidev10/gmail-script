@@ -9,6 +9,10 @@ const tokenTitle = document.getElementById("tokenTitle");
 const tokenMessage = document.getElementById("tokenMessage");
 const tokenCard = document.getElementById("tokenCard");
 const loginButton = document.getElementById("loginButton");
+const connectedEmail = document.getElementById("connectedEmail");
+const agentLoaded = document.getElementById("agentLoaded");
+const pendingMails = document.getElementById("pendingMails");
+const nextSend = document.getElementById("nextSend");
 const markReadButton = document.getElementById("markReadButton");
 const scheduleForm = document.getElementById("scheduleForm");
 const dateInput = document.getElementById("dateInput");
@@ -45,9 +49,15 @@ function setAuthenticated(authenticated) {
 }
 
 async function fetchTokenStatus() {
-  const response = await fetch("/api/token-status");
+  const response = await fetch("/api/dashboard-status");
   const payload = await response.json();
   setAuthenticated(Boolean(payload.authenticated));
+  connectedEmail.textContent = payload.connectedEmail || "Unknown";
+  agentLoaded.textContent = payload.agentLoaded ? "Yes" : "No";
+  pendingMails.textContent = String(payload.pendingCount || 0);
+  nextSend.textContent = payload.nextJob
+    ? `${payload.nextJob.localTime} -> ${payload.nextJob.to}`
+    : "None";
 }
 
 function renderDates() {
@@ -121,6 +131,7 @@ async function markAllRead() {
     }
 
     showFlash(payload.message, "success");
+    await fetchTokenStatus();
   } catch (error) {
     showFlash(error.message, "error");
   } finally {
@@ -165,6 +176,7 @@ async function scheduleMails(event) {
     state.dates = [];
     renderDates();
     showFlash(result.message, "success");
+    await fetchTokenStatus();
   } catch (error) {
     showFlash(error.message, "error");
   } finally {

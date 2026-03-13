@@ -1,6 +1,5 @@
-const { listPendingFiles } = require("./processPendingMails");
+const { listPendingFiles, listPendingJobs } = require("./processPendingMails");
 const { isAgentLoaded, PLIST_LABEL } = require("./launchAgent");
-const fs = require("fs");
 
 function formatLocalDate(date) {
   return new Intl.DateTimeFormat("en-GB", {
@@ -9,23 +8,10 @@ function formatLocalDate(date) {
   }).format(date);
 }
 
-function loadJob(filePath) {
-  return JSON.parse(fs.readFileSync(filePath, "utf8"));
-}
-
-function getNextPendingJob() {
-  const jobs = listPendingFiles()
-    .map((filePath) => ({ filePath, job: loadJob(filePath) }))
-    .filter(({ job }) => job && job.at)
-    .sort((a, b) => new Date(a.job.at).getTime() - new Date(b.job.at).getTime());
-
-  return jobs.length > 0 ? jobs[0].job : null;
-}
-
 function main() {
   const pendingCount = listPendingFiles().length;
   const agentLoaded = isAgentLoaded();
-  const nextJob = getNextPendingJob();
+  const nextJob = listPendingJobs()[0] || null;
 
   console.log(`Agent loaded: ${agentLoaded ? "yes" : "no"}`);
   console.log(`Agent label: ${PLIST_LABEL}`);

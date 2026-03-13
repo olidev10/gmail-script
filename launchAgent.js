@@ -46,7 +46,7 @@ ${programArguments}
   <key>RunAtLoad</key>
   <true/>
   <key>StartInterval</key>
-  <integer>60</integer>
+  <integer>5</integer>
   <key>WorkingDirectory</key>
   <string>${escapeXml(PROJECT_DIR)}</string>
   <key>StandardOutPath</key>
@@ -106,6 +106,7 @@ function bootoutLaunchAgent() {
 
 function ensureAgentLoaded() {
   const { plistPath } = writeLaunchAgent();
+  bootoutLaunchAgent();
   bootstrapLaunchAgent(plistPath);
   kickLaunchAgent();
 }
