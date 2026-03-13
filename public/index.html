@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gmail Action Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Gmail workflow studio</p>
+          <h1>Choose a need, then move fast.</h1>
+          <p class="hero-text">
+            A focused dashboard for Gmail actions today, designed to grow with
+            more needs tomorrow.
+          </p>
+        </div>
+
+        <aside class="status-card" id="tokenCard">
+          <p class="status-label">Connection status</p>
+          <h2 id="tokenTitle">Checking Gmail token...</h2>
+          <p id="tokenMessage">
+            The dashboard checks authentication before every action.
+          </p>
+          <button class="primary-button" id="loginButton" type="button">
+            Login with Gmail
+          </button>
+        </aside>
+      </header>
+
+      <main class="dashboard-grid">
+        <section class="panel panel-selector">
+          <div class="panel-heading">
+            <p class="panel-kicker">Step 1</p>
+            <h2>Select your need</h2>
+          </div>
+
+          <div class="need-grid" id="needGrid">
+            <button
+              class="need-card is-active"
+              type="button"
+              data-need="mark-read"
+            >
+              <span class="need-index">Need 1</span>
+              <strong>Mark all unread mails as read</strong>
+              <span>Clean the inbox in one action.</span>
+            </button>
+
+            <button
+              class="need-card"
+              type="button"
+              data-need="schedule-mail"
+            >
+              <span class="need-index">Need 2</span>
+              <strong>Schedule one message on multiple future dates</strong>
+              <span>Reuse the same email for one recipient.</span>
+            </button>
+
+            <article class="need-card need-card-placeholder" aria-hidden="true">
+              <span class="need-index">Future</span>
+              <strong>More needs can plug in here</strong>
+              <span>The layout is ready for the next workflow.</span>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel panel-action">
+          <div class="panel-heading">
+            <p class="panel-kicker">Step 2</p>
+            <h2 id="panelTitle">Run the selected action</h2>
+          </div>
+
+          <div class="action-view is-visible" data-view="mark-read">
+            <p class="panel-copy">
+              This action finds every unread message in Gmail and removes the
+              unread label.
+            </p>
+            <button class="primary-button" id="markReadButton" type="button">
+              Mark all unread as read
+            </button>
+          </div>
+
+          <form class="action-view" data-view="schedule-mail" id="scheduleForm">
+            <p class="panel-copy">
+              Compose one message, choose one recipient, and queue it on several
+              future dates.
+            </p>
+
+            <label class="field">
+              <span>Recipient email</span>
+              <input type="email" name="to" placeholder="recipient@example.com" required />
+            </label>
+
+            <label class="field">
+              <span>Subject</span>
+              <input type="text" name="subject" placeholder="Quarterly reminder" required />
+            </label>
+
+            <label class="field">
+              <span>Message</span>
+              <textarea
+                name="body"
+                rows="7"
+                placeholder="Write the message that should be reused on each date."
+                required
+              ></textarea>
+            </label>
+
+            <div class="field">
+              <span>Future send dates</span>
+              <div class="date-composer">
+                <input type="datetime-local" id="dateInput" />
+                <button class="secondary-button" id="addDateButton" type="button">
+                  Add date
+                </button>
+              </div>
+              <div class="date-list" id="dateList">
+                <p class="empty-state">No date added yet.</p>
+              </div>
+            </div>
+
+            <button class="primary-button" type="submit">
+              Schedule message
+            </button>
+          </form>
+        </section>
+      </main>
+
+      <section class="flash" id="flashMessage" aria-live="polite"></section>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

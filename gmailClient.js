@@ -4,8 +4,10 @@ const { google } = require("googleapis");
 
 const CREDENTIALS_PATH = "credentials.json";
 const TOKEN_PATH = "token.json";
-const OAUTH_PORT = 3000;
-const GMAIL_SEND_SCOPE = "https://www.googleapis.com/auth/gmail.send";
+const GMAIL_SCOPES = [
+  "https://www.googleapis.com/auth/gmail.send",
+  "https://www.googleapis.com/auth/gmail.modify",
+];
 
 function loadCredentials() {
   const credentials = JSON.parse(fs.readFileSync(CREDENTIALS_PATH, "utf8"));
@@ -27,6 +29,10 @@ function loadSavedToken() {
   }
 
   return JSON.parse(fs.readFileSync(TOKEN_PATH, "utf8"));
+}
+
+function hasSavedToken() {
+  return fs.existsSync(TOKEN_PATH);
 }
 
 function saveToken(tokens) {
@@ -60,18 +66,56 @@ async function sendMail(auth, mail) {
   });
 }
 
-async function authorize(auth) {
+function applySavedToken(auth) {
   const savedToken = loadSavedToken();
 
-  if (savedToken) {
-    auth.setCredentials(savedToken);
-    return auth;
+  if (!savedToken) {
+    return null;
   }
+
+  auth.setCredentials(savedToken);
+  return auth;
+}
+
+function getAuthorizationUrl(auth) {
+  return auth.generateAuthUrl({
+    access_type: "offline",
+    prompt: "consent",
+    scope: GMAIL_SCOPES,
+  });
+}
+
+async function exchangeCodeForToken(auth, code) {
+  const { tokens } = await auth.getToken(code);
+  auth.setCredentials(tokens);
+  saveToken(tokens);
+  return auth;
+}
+
+function getOAuthListenerConfig(auth) {
+  const redirectUrl = new URL(auth.redirectUri);
+
+  return {
+    origin: redirectUrl.origin,
+    port: Number(redirectUrl.port || 80),
+    pathname: redirectUrl.pathname || "/",
+  };
+}
+
+async function authorizeViaLocalServer(auth) {
+  const { origin, port, pathname } = getOAuthListenerConfig(auth);
 
   return new Promise((resolve, reject) => {
     const server = http.createServer(async (req, res) => {
       try {
-        const url = new URL(req.url, `http://localhost:${OAUTH_PORT}`);
+        const url = new URL(req.url, origin);
+
+        if (url.pathname !== pathname) {
+          res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
+          res.end("Page introuvable.");
+          return;
+        }
+
         const code = url.searchParams.get("code");
 
         if (!code) {
@@ -80,9 +124,7 @@ async function authorize(auth) {
           return;
         }
 
-        const { tokens } = await auth.getToken(code);
-        auth.setCredentials(tokens);
-        saveToken(tokens);
+        await exchangeCodeForToken(auth, code);
 
         res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
         res.end("Authentification reussie. Tu peux fermer cette page.");
@@ -95,25 +137,34 @@ async function authorize(auth) {
       }
     });
 
-    server.listen(OAUTH_PORT, () => {
-      const authUrl = auth.generateAuthUrl({
-        access_type: "offline",
-        prompt: "consent",
-        scope: [GMAIL_SEND_SCOPE],
-      });
-
-      console.log("Ouvre ce lien dans ton navigateur pour autoriser l'envoi :");
-      console.log(authUrl);
+    server.listen(port, () => {
+      console.log("Ouvre ce lien dans ton navigateur pour autoriser Gmail :");
+      console.log(getAuthorizationUrl(auth));
     });
   });
 }
 
+async function authorize(auth) {
+  const configuredAuth = applySavedToken(auth);
+
+  if (configuredAuth) {
+    return configuredAuth;
+  }
+
+  return authorizeViaLocalServer(auth);
+}
+
 module.exports = {
   authorize,
+  applySavedToken,
   loadCredentials,
   loadSavedToken,
+  hasSavedToken,
+  getAuthorizationUrl,
+  exchangeCodeForToken,
   saveToken,
   sendMail,
   TOKEN_PATH,
   CREDENTIALS_PATH,
+  GMAIL_SCOPES,
 };

@@ -2,8 +2,9 @@
   "name": "gmail-script",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server/dashboardServer.js",
   "scripts": {
+    "dashboard": "node server/dashboardServer.js",
     "install-mail-agent": "node installMailAgent.js",
     "mark-read": "node markAsRead.js",
     "process-pending-mails": "node processPendingMails.js",
