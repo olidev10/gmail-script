@@ -1,5 +1,5 @@
-const { authorize, loadCredentials } = require("./gmailClient");
-const { markAllUnreadAsRead } = require("./gmailActions");
+const { authorize, loadCredentials } = require("../lib/gmail/client");
+const { markAllUnreadAsRead } = require("../lib/gmail/actions");
 
 async function main() {
   try {

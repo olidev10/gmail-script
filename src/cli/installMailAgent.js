@@ -1,5 +1,9 @@
-const { ensureAgentLoaded, PLIST_LABEL, PLIST_PATH } = require("./launchAgent");
-const { readAgentConfig } = require("./agentConfig");
+const {
+  ensureAgentLoaded,
+  PLIST_LABEL,
+  PLIST_PATH,
+} = require("../lib/scheduler/launchAgent");
+const { readAgentConfig } = require("../lib/scheduler/agentConfig");
 
 function main() {
   try {

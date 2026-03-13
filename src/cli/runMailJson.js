@@ -1,40 +1,11 @@
 const fs = require("fs");
 const path = require("path");
-const { authorize, loadCredentials, sendMail } = require("./gmailClient");
-const { createJob } = require("./processPendingMails");
-const { ensureAgentLoaded } = require("./launchAgent");
-
-function formatLocalDate(date) {
-  return new Intl.DateTimeFormat("en-GB", {
-    dateStyle: "full",
-    timeStyle: "long",
-  }).format(date);
-}
-
-function parseArgs(argv) {
-  const args = {};
-
-  for (let i = 0; i < argv.length; i += 1) {
-    const current = argv[i];
-
-    if (!current.startsWith("--")) {
-      continue;
-    }
-
-    const key = current.slice(2);
-    const value = argv[i + 1];
-
-    if (!value || value.startsWith("--")) {
-      args[key] = true;
-      continue;
-    }
-
-    args[key] = value;
-    i += 1;
-  }
-
-  return args;
-}
+const { authorize, loadCredentials, sendMail } = require("../lib/gmail/client");
+const { createJob } = require("../lib/scheduler/pendingMails");
+const { ensureAgentLoaded } = require("../lib/scheduler/launchAgent");
+const { parseArgs } = require("../lib/shared/cli");
+const { formatLocalDate } = require("../lib/shared/date");
+const { DATA_DIR } = require("../lib/shared/projectPaths");
 
 function loadMailFile(filePath) {
   const absolutePath = path.resolve(filePath);
@@ -77,7 +48,7 @@ function loadMailFile(filePath) {
 async function main() {
   try {
     const args = parseArgs(process.argv.slice(2));
-    const filePath = args.file || args.f || "mail.json";
+    const filePath = args.file || args.f || path.join(DATA_DIR, "mail.json");
     const { absolutePath, mail, scheduledDate } = loadMailFile(filePath);
 
     if (!scheduledDate || scheduledDate.getTime() <= Date.now()) {

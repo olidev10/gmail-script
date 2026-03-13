@@ -8,14 +8,22 @@ const {
   getAuthorizationUrl,
   getConnectedEmail,
   exchangeCodeForToken,
-} = require("../gmailClient");
-const { markAllUnreadAsRead } = require("../gmailActions");
-const { createJob, ensureDirectories, listPendingJobs } = require("../processPendingMails");
-const { ensureAgentLoaded, isAgentLoaded } = require("../launchAgent");
+} = require("../lib/gmail/client");
+const { markAllUnreadAsRead } = require("../lib/gmail/actions");
+const {
+  createJob,
+  ensureDirectories,
+  listPendingJobs,
+} = require("../lib/scheduler/pendingMails");
+const {
+  ensureAgentLoaded,
+  isAgentLoaded,
+} = require("../lib/scheduler/launchAgent");
+const { formatLocalDate } = require("../lib/shared/date");
+const { PUBLIC_DIR } = require("../lib/shared/projectPaths");
 
 const PORT = Number(process.env.PORT || 3000);
 const HOST = process.env.HOST || "127.0.0.1";
-const PUBLIC_DIR = path.join(__dirname, "..", "public");
 
 const CONTENT_TYPES = {
   ".css": "text/css; charset=utf-8",
@@ -101,13 +109,6 @@ function normalizeDateInput(value) {
   }
 
   return date;
-}
-
-function formatLocalDate(date) {
-  return new Intl.DateTimeFormat("en-GB", {
-    dateStyle: "full",
-    timeStyle: "long",
-  }).format(date);
 }
 
 async function getDashboardStatus() {

@@ -1,29 +1,9 @@
-const { authorize, loadCredentials, sendMail } = require("./gmailClient");
-
-function parseArgs(argv) {
-  const args = {};
-
-  for (let i = 0; i < argv.length; i += 1) {
-    const current = argv[i];
-
-    if (!current.startsWith("--")) {
-      continue;
-    }
-
-    const key = current.slice(2);
-    const value = argv[i + 1];
-
-    if (!value || value.startsWith("--")) {
-      args[key] = true;
-      continue;
-    }
-
-    args[key] = value;
-    i += 1;
-  }
-
-  return args;
-}
+const {
+  authorize,
+  loadCredentials,
+  sendMail,
+} = require("../lib/gmail/client");
+const { parseArgs } = require("../lib/shared/cli");
 
 function validateArgs(args) {
   if (!args.to || !args.subject || !args.body) {
@@ -89,7 +69,7 @@ async function main() {
       error.response.data.error.status === "PERMISSION_DENIED"
     ) {
       console.error(
-        "Supprime token.json puis relance le script pour redemander la permission Gmail d'envoi."
+        "Supprime data/gmail/token.json puis relance le script pour redemander la permission Gmail d'envoi."
       );
     }
 

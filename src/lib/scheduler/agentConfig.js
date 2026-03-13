@@ -1,11 +1,12 @@
 const fs = require("fs");
 const path = require("path");
+const { SCHEDULED_MAILS_DIR } = require("../shared/projectPaths");
 
-const CONFIG_PATH = path.join(__dirname, ".scheduled-mails", "agent-config.json");
+const CONFIG_PATH = path.join(SCHEDULED_MAILS_DIR, "agent-config.json");
 const DEFAULT_INTERVAL_SECONDS = 5;
 
 function ensureConfigDirectory() {
-  fs.mkdirSync(path.dirname(CONFIG_PATH), { recursive: true });
+  fs.mkdirSync(SCHEDULED_MAILS_DIR, { recursive: true });
 }
 
 function normalizeIntervalSeconds(value) {

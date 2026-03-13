@@ -1,21 +1,48 @@
 const fs = require("fs");
 const http = require("http");
+const path = require("path");
 const { google } = require("googleapis");
+const {
+  ROOT_DIR,
+  GMAIL_DATA_DIR,
+} = require("../shared/projectPaths");
 
-const CREDENTIALS_PATH = "credentials.json";
-const TOKEN_PATH = "token.json";
+const LEGACY_CREDENTIALS_PATH = path.join(ROOT_DIR, "credentials.json");
+const LEGACY_TOKEN_PATH = path.join(ROOT_DIR, "token.json");
+const CREDENTIALS_PATH = path.join(GMAIL_DATA_DIR, "credentials.json");
+const TOKEN_PATH = path.join(GMAIL_DATA_DIR, "token.json");
 const GMAIL_SCOPES = [
   "https://www.googleapis.com/auth/gmail.send",
   "https://www.googleapis.com/auth/gmail.modify",
 ];
 
+function ensureGmailDataDirectory() {
+  fs.mkdirSync(GMAIL_DATA_DIR, { recursive: true });
+}
+
+function resolveReadablePath(primaryPath, legacyPath) {
+  if (fs.existsSync(primaryPath)) {
+    return primaryPath;
+  }
+
+  if (fs.existsSync(legacyPath)) {
+    return legacyPath;
+  }
+
+  return primaryPath;
+}
+
 function loadCredentials() {
-  const credentials = JSON.parse(fs.readFileSync(CREDENTIALS_PATH, "utf8"));
+  const credentialsPath = resolveReadablePath(
+    CREDENTIALS_PATH,
+    LEGACY_CREDENTIALS_PATH
+  );
+  const credentials = JSON.parse(fs.readFileSync(credentialsPath, "utf8"));
   const oauthConfig = credentials.web || credentials.installed;
 
   if (!oauthConfig) {
     throw new Error(
-      "credentials.json doit contenir une configuration OAuth 'web' ou 'installed'."
+      `${path.basename(credentialsPath)} doit contenir une configuration OAuth 'web' ou 'installed'.`
     );
   }
 
@@ -24,18 +51,24 @@ function loadCredentials() {
 }
 
 function loadSavedToken() {
-  if (!fs.existsSync(TOKEN_PATH)) {
+  const tokenPath = resolveReadablePath(TOKEN_PATH, LEGACY_TOKEN_PATH);
+
+  if (!fs.existsSync(tokenPath)) {
     return null;
   }
 
-  return JSON.parse(fs.readFileSync(TOKEN_PATH, "utf8"));
+  return JSON.parse(fs.readFileSync(tokenPath, "utf8"));
 }
 
 function hasSavedToken() {
-  return fs.existsSync(TOKEN_PATH);
+  return (
+    fs.existsSync(TOKEN_PATH) ||
+    fs.existsSync(LEGACY_TOKEN_PATH)
+  );
 }
 
 function saveToken(tokens) {
+  ensureGmailDataDirectory();
   fs.writeFileSync(TOKEN_PATH, JSON.stringify(tokens, null, 2));
 }
 
@@ -177,5 +210,7 @@ module.exports = {
   sendMail,
   TOKEN_PATH,
   CREDENTIALS_PATH,
+  LEGACY_TOKEN_PATH,
+  LEGACY_CREDENTIALS_PATH,
   GMAIL_SCOPES,
 };

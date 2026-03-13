@@ -7,9 +7,10 @@ const {
   loadSavedToken,
   sendMail,
   TOKEN_PATH,
-} = require("./gmailClient");
+} = require("../gmail/client");
+const { SCHEDULED_MAILS_DIR } = require("../shared/projectPaths");
 
-const JOB_ROOT = path.join(__dirname, ".scheduled-mails");
+const JOB_ROOT = SCHEDULED_MAILS_DIR;
 const PENDING_DIR = path.join(JOB_ROOT, "pending");
 const SENT_DIR = path.join(JOB_ROOT, "sent");
 const FAILED_DIR = path.join(JOB_ROOT, "failed");
@@ -83,7 +84,7 @@ async function processDueMails() {
   const token = loadSavedToken();
   if (!token) {
     throw new Error(
-      `${TOKEN_PATH} est introuvable. Lance d'abord sendScheduledMail.js pour autoriser Gmail.`
+      `${TOKEN_PATH} est introuvable. Lance d'abord src/cli/sendScheduledMail.js pour autoriser Gmail.`
     );
   }
 
@@ -202,5 +203,6 @@ module.exports = {
   ensureDirectories,
   listPendingFiles,
   listPendingJobs,
+  main,
   processDueMails,
 };

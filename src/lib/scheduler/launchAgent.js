@@ -2,11 +2,21 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 const { execFileSync } = require("child_process");
-const { JOB_ROOT, ensureDirectories, listPendingFiles } = require("./processPendingMails");
+const {
+  JOB_ROOT,
+  ensureDirectories,
+  listPendingFiles,
+} = require("./pendingMails");
 const { readAgentConfig } = require("./agentConfig");
+const { ROOT_DIR } = require("../shared/projectPaths");
 
-const PROJECT_DIR = __dirname;
-const PROCESSOR_SCRIPT_PATH = path.join(PROJECT_DIR, "processPendingMails.js");
+const PROJECT_DIR = ROOT_DIR;
+const PROCESSOR_SCRIPT_PATH = path.join(
+  PROJECT_DIR,
+  "src",
+  "cli",
+  "processPendingMails.js"
+);
 const LOG_DIR = path.join(JOB_ROOT, "logs");
 const LAUNCH_AGENTS_DIR = path.join(os.homedir(), "Library", "LaunchAgents");
 const PLIST_LABEL = "com.verdoyant.gmail-script.pending-mails";

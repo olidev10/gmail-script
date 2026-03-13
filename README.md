@@ -1,335 +1,49 @@
-# Gmail – Mark All Unread Emails as Read
+# Gmail Script
 
-A small **Node.js** script that uses the API of **Gmail** to automatically mark all unread emails as read.
+This project is now organized by topic:
 
-Authentication is handled via OAuth using **Google Cloud**.
+```text
+gmail-script/
+├── data/
+│   ├── examples/
+│   ├── gmail/
+│   └── scheduled-mails/
+├── public/
+├── src/
+│   ├── cli/
+│   ├── lib/
+│   │   ├── gmail/
+│   │   ├── scheduler/
+│   │   └── shared/
+│   └── server/
+└── package.json
+```
 
----
+## JSON files
 
-# 1. Prerequisites
+Runtime JSON files are no longer stored at the project root.
 
-Install **Node.js**.
+- Gmail credentials: `data/gmail/credentials.json`
+- Gmail token: `data/gmail/token.json`
+- Scheduled mail queue: `data/scheduled-mails/`
+- Example mail JSON: `data/examples/mail.example.json`
+- Example Google credentials JSON: `data/examples/credentials.example.json`
 
-Check installation:
+Legacy root files like `credentials.json` and `token.json` are still read if they already exist, but all new writes now go to `data/gmail/`.
+
+## Main commands
 
 ```bash
-node -v
-npm -v
-```
-
----
-
-# 2. Create a Google Cloud Project
-
-1. Go to https://console.cloud.google.com
-2. Create a new project
-3. Navigate to **APIs & Services → Library**
-4. Search for **Gmail API**
-5. Click **Enable**
-
----
-
-# 3. Configure the OAuth Consent Screen
-
-1. Go to **OAuth consent screen**
-2. Select **External**
-3. Add your email address under **Test users**
-4. Save the configuration
-
----
-
-# 4. Create OAuth Credentials
-
-1. Go to **Credentials**
-2. Click **Create credentials**
-3. Select **OAuth Client ID**
-4. Choose **Web application**
-
-Add the following redirect URI:
-
-```
-http://localhost:3000
-```
-
-Download the generated file:
-
-```
-credentials.json
-```
-
-Place this file in the root of your project directory.
-
----
-
-# 5. Initialize the Node Project
-
-Create a new project folder:
-
-```bash
-mkdir gmail-script
-cd gmail-script
-npm init -y
-```
-
-Install the Google API client library:
-
-```bash
-npm install googleapis
-```
-
----
-
-# 6. Add the Script
-
-Create a file named:
-
-```
-markAsRead.js
-```
-
-This script will:
-
-* start a local server
-* receive the OAuth authorization code
-* exchange the code for an access token
-* fetch emails matching `is:unread`
-* remove the `UNREAD` label from them
-
----
-
-# 7. Run the Script
-
-```bash
-node markAsRead.js
-```
-
-Workflow:
-
-1. The script prints an authentication URL
-2. You log in with your Gmail account
-3. Google redirects to `http://localhost:3000`
-4. The script captures the OAuth token
-5. All unread emails are marked as read
-
----
-
-# 8. Generated Files
-
-After the first authentication:
-
-```
-credentials.json
-token.json
-```
-
-* `credentials.json` → OAuth client credentials
-* `token.json` → saved access token
-
----
-
-# Result
-
-The script:
-
-* retrieves all emails matching `is:unread`
-* removes the `UNREAD` label
-* marks them as read automatically
-
----
-
-# Possible Improvements
-
-* automatically delete specific emails
-* archive newsletters
-* mark emails from specific senders as read
-* automate execution with a cron job
-
----
-
-# Gmail - Send A Scheduled Email
-
-This project now also includes:
-
-```
-sendScheduledMail.js
-```
-
-This script sends an email through Gmail and can wait until a scheduled date/time before sending it.
-
-## Run It
-
-Immediate send:
-
-```bash
-node sendScheduledMail.js --to recipient@example.com --subject "Hello" --body "This email was sent by the script."
-```
-
-Scheduled send:
-
-```bash
-node sendScheduledMail.js --to recipient@example.com --subject "Reminder" --body "This will be sent later." --at "2026-03-13T18:30:00+01:00"
-```
-
-You can also use the npm shortcut:
-
-```bash
-npm run send-mail -- --to recipient@example.com --subject "Hello" --body "This email was sent by the script."
-```
-
-## Authentication
-
-On the first run, the script:
-
-1. prints a Google OAuth URL
-2. asks you to sign in
-3. saves the token in `token.json`
-
-If `token.json` was created by the read-only script and sending fails with a permission error, delete `token.json` and run the sender again so Google can grant the `gmail.send` permission.
-
-## Important Note About Scheduling
-
-The `--at` option keeps the Node.js process running until the target time, then sends the email.
-
-So if you want the email to go out later, you must keep the terminal session alive until that moment.
-
-For fully automatic recurring delivery, run this script with:
-
-* `cron` on macOS/Linux
-* Task Scheduler on Windows
-
-## Send Later And Close The Terminal On macOS
-
-If you want to schedule an email for later and close the terminal right away, use:
-
-```bash
-node scheduleMailLaunchd.js --to recipient@example.com --subject "Hello" --body "Sent later" --at "2026-03-20T10:35:00+01:00"
-```
-
-What this does:
-
-* stores the mail in a local queue in `.scheduled-mails/pending`
-* installs a macOS `launchd` agent in `~/Library/LaunchAgents`
-* checks the queue every 5 seconds while you are logged in
-* sends overdue mails on the next login if the Mac was off at the planned time
-* lets you close the terminal as soon as the command finishes
-
-Important:
-
-* run `sendScheduledMail.js` once before this so `token.json` already exists
-* the Mac must be powered on and your session logged in for the mail to send exactly on time
-* if the Mac is off at the target time, the mail should send shortly after your next login
-
-## Token Lifetime
-
-If your `token.json` contains:
-
-```json
-"refresh_token_expires_in": 604799
-```
-
-that means the refresh token is valid for about 7 days.
-
-If you schedule a mail very close to that limit, the send can fail if Google expires the refresh token before the queued job runs.
-
-In that case, run `sendScheduledMail.js` again before the scheduled day to refresh the authorization.
-
-## Use A JSON File
-
-You can now prepare a file like:
-
-```json
-{
-  "to": "recipient@example.com",
-  "subject": "Hello",
-  "body": "This is my message.",
-  "scheduledAt": "2026-03-20T10:35:00+01:00"
-}
-```
-
-Example file:
-
-```bash
-mail.example.json
-```
-
-Run it with:
-
-```bash
-node runMailJson.js --file mail.json
-```
-
-or:
-
-```bash
-npm run run-mail-json -- --file mail.json
-```
-
-Rules:
-
-* if `scheduledAt` is missing, the mail is sent immediately
-* if `scheduledAt` is in the future, the mail is added to the local queue
-* if `scheduledAt` is in the past, the mail is sent immediately
-* when queued, the script prints both the local date and the ISO timestamp so you can verify the exact send time
-
-To process queued mails automatically while the terminal is closed, install the macOS agent once:
-
-```bash
-npm run install-mail-agent
-```
-
-## Cancel Pending Mails By Recipient
-
-To remove queued mails for one recipient only:
-
-```bash
-node cancelPendingMails.js --to recipient@example.com
-```
-
-or:
-
-```bash
-npm run cancel-pending-mails -- --to recipient@example.com
-```
-
-This only deletes files in `.scheduled-mails/pending`.
-It does not touch already sent mails or failed mails.
-
-To remove all queued mails:
-
-```bash
-npm run cancel-pending-mails -- --all
-```
-
-The agent now auto-manages itself:
-
-* when you queue at least one future mail, the macOS agent is loaded automatically
-* when there are no pending mails left, the agent unloads itself and stops running in background
-
-Check the current state with:
-
-```bash
+npm run dashboard
+npm run mark-read
+npm run send-mail -- --to recipient@example.com --subject "Hello" --body "Message"
+npm run schedule-mail -- --to recipient@example.com --subject "Hello" --body "Message" --at "2026-03-20T10:35:00+01:00"
+npm run run-mail-json -- --file data/mail.json
 npm run mail-status
 ```
 
-This shows:
+## Notes
 
-* whether the macOS agent is loaded
-* the current polling interval
-* how many mails are pending
-* the next scheduled send time
-
-## Change The Polling Interval
-
-To change the mail agent polling interval at any time:
-
-```bash
-npm run set-mail-agent-interval -- --seconds 10
-```
-
-or:
-
-```bash
-node setMailAgentInterval.js --seconds 10
-```
-
-If the agent is currently loaded, the command reloads it automatically so the new interval applies right away.
+- Put your Google OAuth file in `data/gmail/credentials.json`
+- The first authenticated send creates `data/gmail/token.json`
+- The dashboard is served from `src/server/dashboardServer.js`

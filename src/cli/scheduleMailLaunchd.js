@@ -1,39 +1,14 @@
 const fs = require("fs");
-const { CREDENTIALS_PATH, TOKEN_PATH } = require("./gmailClient");
-const { createJob } = require("./processPendingMails");
-const { ensureAgentLoaded } = require("./launchAgent");
-
-function formatLocalDate(date) {
-  return new Intl.DateTimeFormat("en-GB", {
-    dateStyle: "full",
-    timeStyle: "long",
-  }).format(date);
-}
-
-function parseArgs(argv) {
-  const args = {};
-
-  for (let i = 0; i < argv.length; i += 1) {
-    const current = argv[i];
-
-    if (!current.startsWith("--")) {
-      continue;
-    }
-
-    const key = current.slice(2);
-    const value = argv[i + 1];
-
-    if (!value || value.startsWith("--")) {
-      args[key] = true;
-      continue;
-    }
-
-    args[key] = value;
-    i += 1;
-  }
-
-  return args;
-}
+const {
+  CREDENTIALS_PATH,
+  TOKEN_PATH,
+  LEGACY_CREDENTIALS_PATH,
+  LEGACY_TOKEN_PATH,
+} = require("../lib/gmail/client");
+const { createJob } = require("../lib/scheduler/pendingMails");
+const { ensureAgentLoaded } = require("../lib/scheduler/launchAgent");
+const { parseArgs } = require("../lib/shared/cli");
+const { formatLocalDate } = require("../lib/shared/date");
 
 function validateArgs(args) {
   if (!args.to || !args.subject || !args.body || !args.at) {
@@ -54,13 +29,13 @@ function validateArgs(args) {
     throw new Error("--at doit etre dans le futur.");
   }
 
-  if (!fs.existsSync(CREDENTIALS_PATH)) {
-    throw new Error("credentials.json est introuvable.");
+  if (!fs.existsSync(CREDENTIALS_PATH) && !fs.existsSync(LEGACY_CREDENTIALS_PATH)) {
+    throw new Error("data/gmail/credentials.json est introuvable.");
   }
 
-  if (!fs.existsSync(TOKEN_PATH)) {
+  if (!fs.existsSync(TOKEN_PATH) && !fs.existsSync(LEGACY_TOKEN_PATH)) {
     throw new Error(
-      "token.json est introuvable. Lance d'abord sendScheduledMail.js une premiere fois pour autoriser Gmail."
+      "data/gmail/token.json est introuvable. Lance d'abord src/cli/sendScheduledMail.js une premiere fois pour autoriser Gmail."
     );
   }
 

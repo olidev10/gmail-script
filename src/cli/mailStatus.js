@@ -1,13 +1,13 @@
-const { listPendingFiles, listPendingJobs } = require("./processPendingMails");
-const { isAgentLoaded, PLIST_LABEL } = require("./launchAgent");
-const { readAgentConfig } = require("./agentConfig");
-
-function formatLocalDate(date) {
-  return new Intl.DateTimeFormat("en-GB", {
-    dateStyle: "full",
-    timeStyle: "long",
-  }).format(date);
-}
+const {
+  listPendingFiles,
+  listPendingJobs,
+} = require("../lib/scheduler/pendingMails");
+const {
+  isAgentLoaded,
+  PLIST_LABEL,
+} = require("../lib/scheduler/launchAgent");
+const { readAgentConfig } = require("../lib/scheduler/agentConfig");
+const { formatLocalDate } = require("../lib/shared/date");
 
 function main() {
   const pendingCount = listPendingFiles().length;
