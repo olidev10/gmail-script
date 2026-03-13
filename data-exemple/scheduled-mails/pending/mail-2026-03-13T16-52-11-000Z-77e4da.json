@@ -1,0 +1,8 @@
+{
+  "id": "mail-2026-03-13T16-52-11-000Z-77e4da",
+  "to": "recipient@example.com",
+  "subject": "Pending mail exemple",
+  "body": "Hi, this is just an exemple of a pending mail.",
+  "at": "2026-03-13T16:52:11.000Z",
+  "createdAt": "2026-03-13T13:52:35.106Z"
+}

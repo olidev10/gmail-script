@@ -1,0 +1,9 @@
+{
+  "id": "mail-2026-03-13T16-01-00-000Z-efd6e7",
+  "to": "recipient@example.com",
+  "subject": "Sent mail exemple",
+  "body": "Hi, this is just an exemple of a sent mail.",
+  "at": "2026-03-13T16:01:00.000Z",
+  "createdAt": "2026-03-13T16:00:26.202Z",
+  "sentAt": "2026-03-13T16:01:11.573Z"
+}

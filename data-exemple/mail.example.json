@@ -1,0 +1,6 @@
+{
+  "to": "recipient@example.com",
+  "subject": "Hello",
+  "body": "This is my message.",
+  "scheduledAt": "2026-03-20T10:35:00+01:00"
+}
