@@ -276,3 +276,8 @@ To process queued mails automatically while the terminal is closed, install the 
 ```bash
 npm run install-mail-agent
 ```
+
+The agent now auto-manages itself:
+
+* when you queue at least one future mail, the macOS agent is loaded automatically
+* when there are no pending mails left, the agent unloads itself and stops running in background

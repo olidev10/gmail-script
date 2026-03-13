@@ -1,6 +1,7 @@
 const fs = require("fs");
 const { CREDENTIALS_PATH, TOKEN_PATH } = require("./gmailClient");
 const { createJob } = require("./processPendingMails");
+const { ensureAgentLoaded } = require("./launchAgent");
 
 function formatLocalDate(date) {
   return new Intl.DateTimeFormat("en-GB", {
@@ -75,15 +76,14 @@ function main() {
       ...args,
       at: scheduledDate.toISOString(),
     });
+    ensureAgentLoaded();
 
     console.log("Mail ajoute a la file locale.");
     console.log(`Date prevue (locale) : ${formatLocalDate(scheduledDate)}`);
     console.log(`Date prevue (ISO) : ${scheduledDate.toISOString()}`);
     console.log(`Job ID : ${job.id}`);
     console.log("Tu peux fermer le terminal.");
-    console.log(
-      "Pour l'envoi automatique terminal ferme, installe l'agent avec: npm run install-mail-agent"
-    );
+    console.log("Agent launchd active automatiquement car un mail est en attente.");
     console.log(
       "Si le Mac etait eteint a l'heure prevue, le mail sera envoye au prochain login si l'agent est installe."
     );

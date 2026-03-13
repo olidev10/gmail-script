@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const { authorize, loadCredentials, sendMail } = require("./gmailClient");
 const { createJob } = require("./processPendingMails");
+const { ensureAgentLoaded } = require("./launchAgent");
 
 function formatLocalDate(date) {
   return new Intl.DateTimeFormat("en-GB", {
@@ -103,15 +104,14 @@ async function main() {
       body: mail.body,
       at: scheduledDate.toISOString(),
     });
+    ensureAgentLoaded();
 
     console.log("Mail ajoute a la file locale.");
     console.log(`Source: ${absolutePath}`);
     console.log(`Date prevue (locale) : ${formatLocalDate(scheduledDate)}`);
     console.log(`Date prevue (ISO) : ${scheduledDate.toISOString()}`);
     console.log(`Job ID : ${job.id}`);
-    console.log(
-      "Pour l'envoyer automatiquement meme terminal ferme, lance aussi: npm run install-mail-agent"
-    );
+    console.log("Agent launchd active automatiquement car un mail est en attente.");
   } catch (error) {
     console.error("Erreur:", error.message);
     process.exitCode = 1;

@@ -165,6 +165,12 @@ async function main() {
       `Traitement termine. Envoyes: ${result.sent}, en echec: ${result.failed}, en attente: ${result.skipped}`
     );
 
+    const { disableAgentIfIdle } = require("./launchAgent");
+    const unloaded = disableAgentIfIdle();
+    if (unloaded) {
+      console.log("Aucun mail en attente. Agent launchd desactive.");
+    }
+
     if (result.refreshTokenWarning) {
       console.log(
         "Attention: le refresh token actuel semble limite dans le temps. Un mail programme tres loin dans le futur pourrait echouer si tu ne reautorises pas Gmail avant."
@@ -187,5 +193,6 @@ module.exports = {
   FAILED_DIR,
   createJob,
   ensureDirectories,
+  listPendingFiles,
   processDueMails,
 };
