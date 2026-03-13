@@ -143,3 +143,92 @@ The script:
 * archive newsletters
 * mark emails from specific senders as read
 * automate execution with a cron job
+
+---
+
+# Gmail - Send A Scheduled Email
+
+This project now also includes:
+
+```
+sendScheduledMail.js
+```
+
+This script sends an email through Gmail and can wait until a scheduled date/time before sending it.
+
+## Run It
+
+Immediate send:
+
+```bash
+node sendScheduledMail.js --to recipient@example.com --subject "Hello" --body "This email was sent by the script."
+```
+
+Scheduled send:
+
+```bash
+node sendScheduledMail.js --to recipient@example.com --subject "Reminder" --body "This will be sent later." --at "2026-03-13T18:30:00+01:00"
+```
+
+You can also use the npm shortcut:
+
+```bash
+npm run send-mail -- --to recipient@example.com --subject "Hello" --body "This email was sent by the script."
+```
+
+## Authentication
+
+On the first run, the script:
+
+1. prints a Google OAuth URL
+2. asks you to sign in
+3. saves the token in `token.json`
+
+If `token.json` was created by the read-only script and sending fails with a permission error, delete `token.json` and run the sender again so Google can grant the `gmail.send` permission.
+
+## Important Note About Scheduling
+
+The `--at` option keeps the Node.js process running until the target time, then sends the email.
+
+So if you want the email to go out later, you must keep the terminal session alive until that moment.
+
+For fully automatic recurring delivery, run this script with:
+
+* `cron` on macOS/Linux
+* Task Scheduler on Windows
+
+## Send Later And Close The Terminal On macOS
+
+If you want to schedule an email for later and close the terminal right away, use:
+
+```bash
+node scheduleMailLaunchd.js --to recipient@example.com --subject "Hello" --body "Sent later" --at "2026-03-20T10:35:00+01:00"
+```
+
+What this does:
+
+* stores the mail in a local queue in `.scheduled-mails/pending`
+* installs a macOS `launchd` agent in `~/Library/LaunchAgents`
+* checks the queue every 60 seconds while you are logged in
+* sends overdue mails on the next login if the Mac was off at the planned time
+* lets you close the terminal as soon as the command finishes
+
+Important:
+
+* run `sendScheduledMail.js` once before this so `token.json` already exists
+* the Mac must be powered on and your session logged in for the mail to send exactly on time
+* if the Mac is off at the target time, the mail should send shortly after your next login
+
+## Token Lifetime
+
+If your `token.json` contains:
+
+```json
+"refresh_token_expires_in": 604799
+```
+
+that means the refresh token is valid for about 7 days.
+
+If you schedule a mail very close to that limit, the send can fail if Google expires the refresh token before the queued job runs.
+
+In that case, run `sendScheduledMail.js` again before the scheduled day to refresh the authorization.
