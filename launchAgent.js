@@ -110,6 +110,28 @@ function ensureAgentLoaded() {
   kickLaunchAgent();
 }
 
+function isAgentLoaded() {
+  try {
+    execFileSync(
+      "launchctl",
+      ["print", `gui/${process.getuid()}/${PLIST_LABEL}`],
+      { stdio: "pipe" }
+    );
+    return true;
+  } catch (error) {
+    const stderr = error.stderr ? error.stderr.toString() : "";
+    if (
+      stderr.includes("Could not find service") ||
+      stderr.includes("service not found") ||
+      stderr.includes("not found")
+    ) {
+      return false;
+    }
+
+    throw error;
+  }
+}
+
 function disableAgentIfIdle() {
   if (listPendingFiles().length > 0) {
     return false;
@@ -127,5 +149,6 @@ module.exports = {
   disableAgentIfIdle,
   ensureAgentLoaded,
   ensureSchedulerDirectories,
+  isAgentLoaded,
   writeLaunchAgent,
 };

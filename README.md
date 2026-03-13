@@ -281,3 +281,15 @@ The agent now auto-manages itself:
 
 * when you queue at least one future mail, the macOS agent is loaded automatically
 * when there are no pending mails left, the agent unloads itself and stops running in background
+
+Check the current state with:
+
+```bash
+npm run mail-status
+```
+
+This shows:
+
+* whether the macOS agent is loaded
+* how many mails are pending
+* the next scheduled send time
