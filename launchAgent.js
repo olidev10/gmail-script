@@ -3,6 +3,7 @@ const path = require("path");
 const os = require("os");
 const { execFileSync } = require("child_process");
 const { JOB_ROOT, ensureDirectories, listPendingFiles } = require("./processPendingMails");
+const { readAgentConfig } = require("./agentConfig");
 
 const PROJECT_DIR = __dirname;
 const PROCESSOR_SCRIPT_PATH = path.join(PROJECT_DIR, "processPendingMails.js");
@@ -29,6 +30,7 @@ function ensureSchedulerDirectories() {
 function buildPlist() {
   const stdoutPath = path.join(LOG_DIR, "processor.out.log");
   const stderrPath = path.join(LOG_DIR, "processor.err.log");
+  const { intervalSeconds } = readAgentConfig();
   const programArguments = [process.execPath, PROCESSOR_SCRIPT_PATH]
     .map((value) => `    <string>${escapeXml(String(value))}</string>`)
     .join("\n");
@@ -46,7 +48,7 @@ ${programArguments}
   <key>RunAtLoad</key>
   <true/>
   <key>StartInterval</key>
-  <integer>5</integer>
+  <integer>${intervalSeconds}</integer>
   <key>WorkingDirectory</key>
   <string>${escapeXml(PROJECT_DIR)}</string>
   <key>StandardOutPath</key>

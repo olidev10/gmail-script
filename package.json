@@ -4,6 +4,7 @@
   "description": "",
   "main": "server/dashboardServer.js",
   "scripts": {
+    "cancel-pending-mails": "node cancelPendingMails.js",
     "dashboard": "node server/dashboardServer.js",
     "install-mail-agent": "node installMailAgent.js",
     "mail-status": "node mailStatus.js",
@@ -12,6 +13,7 @@
     "run-mail-json": "node runMailJson.js --file mail.json",
     "schedule-mail": "node scheduleMailLaunchd.js",
     "send-mail": "node sendScheduledMail.js",
+    "set-mail-agent-interval": "node setMailAgentInterval.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

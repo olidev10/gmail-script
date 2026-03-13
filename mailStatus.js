@@ -1,5 +1,6 @@
 const { listPendingFiles, listPendingJobs } = require("./processPendingMails");
 const { isAgentLoaded, PLIST_LABEL } = require("./launchAgent");
+const { readAgentConfig } = require("./agentConfig");
 
 function formatLocalDate(date) {
   return new Intl.DateTimeFormat("en-GB", {
@@ -12,9 +13,11 @@ function main() {
   const pendingCount = listPendingFiles().length;
   const agentLoaded = isAgentLoaded();
   const nextJob = listPendingJobs()[0] || null;
+  const { intervalSeconds } = readAgentConfig();
 
   console.log(`Agent loaded: ${agentLoaded ? "yes" : "no"}`);
   console.log(`Agent label: ${PLIST_LABEL}`);
+  console.log(`Polling interval: ${intervalSeconds}s`);
   console.log(`Pending mails: ${pendingCount}`);
 
   if (nextJob) {

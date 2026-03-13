@@ -277,6 +277,23 @@ To process queued mails automatically while the terminal is closed, install the 
 npm run install-mail-agent
 ```
 
+## Cancel Pending Mails By Recipient
+
+To remove queued mails for one recipient only:
+
+```bash
+node cancelPendingMails.js --to recipient@example.com
+```
+
+or:
+
+```bash
+npm run cancel-pending-mails -- --to recipient@example.com
+```
+
+This only deletes files in `.scheduled-mails/pending`.
+It does not touch already sent mails or failed mails.
+
 The agent now auto-manages itself:
 
 * when you queue at least one future mail, the macOS agent is loaded automatically
@@ -291,5 +308,22 @@ npm run mail-status
 This shows:
 
 * whether the macOS agent is loaded
+* the current polling interval
 * how many mails are pending
 * the next scheduled send time
+
+## Change The Polling Interval
+
+To change the mail agent polling interval at any time:
+
+```bash
+npm run set-mail-agent-interval -- --seconds 10
+```
+
+or:
+
+```bash
+node setMailAgentInterval.js --seconds 10
+```
+
+If the agent is currently loaded, the command reloads it automatically so the new interval applies right away.
