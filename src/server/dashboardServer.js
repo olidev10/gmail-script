@@ -8,6 +8,7 @@ const {
   getAuthorizationUrl,
   getConnectedEmail,
   exchangeCodeForToken,
+  clearSavedToken,
 } = require("../lib/gmail/client");
 const { markAllUnreadAsRead } = require("../lib/gmail/actions");
 const {
@@ -198,6 +199,15 @@ async function handleApi(req, res, pathname) {
   if (req.method === "POST" && pathname === "/api/login") {
     const auth = loadCredentials();
     sendJson(res, 200, { authUrl: getAuthorizationUrl(auth) });
+    return;
+  }
+
+  if (req.method === "POST" && pathname === "/api/disconnect") {
+    clearSavedToken();
+    sendJson(res, 200, {
+      success: true,
+      message: "Gmail disconnected.",
+    });
     return;
   }
 

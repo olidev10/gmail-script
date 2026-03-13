@@ -10,6 +10,7 @@ const tokenMessage = document.getElementById("tokenMessage");
 const tokenCard = document.getElementById("tokenCard");
 const loginButton = document.getElementById("loginButton");
 const connectedEmail = document.getElementById("connectedEmail");
+const mailConnected = document.getElementById("mailConnected");
 const agentLoaded = document.getElementById("agentLoaded");
 const pendingMails = document.getElementById("pendingMails");
 const nextSend = document.getElementById("nextSend");
@@ -38,21 +39,22 @@ function setAuthenticated(authenticated) {
     tokenTitle.textContent = "Ready to act";
     tokenMessage.textContent =
       "Your Gmail token is available. Every action still rechecks it before running.";
-    loginButton.textContent = "Reconnect Gmail";
+    loginButton.textContent = "Disconnect mail";
     return;
   }
 
   tokenTitle.textContent = "Login required";
   tokenMessage.textContent =
     "Please login first. The dashboard blocks every action until a Gmail token is available.";
-  loginButton.textContent = "Login with Gmail";
+  loginButton.textContent = "Connect mail";
 }
 
 async function fetchTokenStatus() {
   const response = await fetch("/api/dashboard-status");
   const payload = await response.json();
   setAuthenticated(Boolean(payload.authenticated));
-  connectedEmail.textContent = payload.connectedEmail || "Unknown";
+  mailConnected.textContent = payload.authenticated ? "Yes" : "No";
+  connectedEmail.textContent = payload.connectedEmail || "No mailbox connected";
   agentLoaded.textContent = payload.agentLoaded ? "Yes" : "No";
   pendingMails.textContent = String(payload.pendingCount || 0);
   nextSend.textContent = payload.nextJob
@@ -84,7 +86,7 @@ function showSelectedNeed() {
     view.classList.toggle("is-visible", isVisible);
   });
 
-  document.querySelectorAll(".need-card[data-need]").forEach((button) => {
+  document.querySelectorAll("[data-need]").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.need === state.selectedNeed);
   });
 }
@@ -112,6 +114,29 @@ async function login() {
     }
 
     window.location.href = payload.authUrl;
+  } catch (error) {
+    showFlash(error.message, "error");
+  } finally {
+    loginButton.disabled = false;
+  }
+}
+
+async function disconnect() {
+  loginButton.disabled = true;
+
+  try {
+    const response = await fetch("/api/disconnect", { method: "POST" });
+    const payload = await response.json();
+
+    if (!response.ok) {
+      throw new Error(payload.message || payload.error || "Unable to disconnect Gmail.");
+    }
+
+    setAuthenticated(false);
+    mailConnected.textContent = "No";
+    connectedEmail.textContent = "No mailbox connected";
+    showFlash(payload.message || "Gmail disconnected.", "success");
+    await fetchTokenStatus();
   } catch (error) {
     showFlash(error.message, "error");
   } finally {
@@ -195,7 +220,14 @@ needGrid.addEventListener("click", (event) => {
   showSelectedNeed();
 });
 
-loginButton.addEventListener("click", login);
+loginButton.addEventListener("click", () => {
+  if (state.authenticated) {
+    disconnect();
+    return;
+  }
+
+  login();
+});
 
 markReadButton.addEventListener("click", () => {
   guardedAction(markAllRead);

@@ -72,6 +72,14 @@ function saveToken(tokens) {
   fs.writeFileSync(TOKEN_PATH, JSON.stringify(tokens, null, 2));
 }
 
+function clearSavedToken() {
+  [TOKEN_PATH, LEGACY_TOKEN_PATH].forEach((tokenPath) => {
+    if (fs.existsSync(tokenPath)) {
+      fs.unlinkSync(tokenPath);
+    }
+  });
+}
+
 function encodeHeaderValue(value) {
   return `=?UTF-8?B?${Buffer.from(String(value), "utf8").toString("base64")}?=`;
 }
@@ -207,6 +215,7 @@ module.exports = {
   getConnectedEmail,
   exchangeCodeForToken,
   saveToken,
+  clearSavedToken,
   sendMail,
   TOKEN_PATH,
   CREDENTIALS_PATH,

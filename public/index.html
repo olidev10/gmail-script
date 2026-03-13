@@ -14,101 +14,98 @@
   </head>
   <body>
     <div class="page-shell">
-      <header class="hero">
-        <div class="hero-copy">
-          <p class="eyebrow">Gmail workflow studio</p>
-          <h1>Choose a need, then move fast.</h1>
-          <p class="hero-text">
-            A focused dashboard for Gmail actions today, designed to grow with
-            more needs tomorrow.
-          </p>
-        </div>
-
-        <aside class="status-card" id="tokenCard">
-          <p class="status-label">Connection status</p>
-          <h2 id="tokenTitle">Checking Gmail token...</h2>
-          <p id="tokenMessage">
-            The dashboard checks authentication before every action.
-          </p>
-          <dl class="status-metrics">
-            <div class="status-metric">
-              <dt>Connected email</dt>
-              <dd id="connectedEmail">Unknown</dd>
-            </div>
-            <div class="status-metric">
-              <dt>Agent loaded</dt>
-              <dd id="agentLoaded">No</dd>
-            </div>
-            <div class="status-metric">
-              <dt>Pending mails</dt>
-              <dd id="pendingMails">0</dd>
-            </div>
-            <div class="status-metric status-metric-wide">
-              <dt>Next send</dt>
-              <dd id="nextSend">None</dd>
-            </div>
-          </dl>
-          <button class="primary-button" id="loginButton" type="button">
-            Login with Gmail
-          </button>
-        </aside>
-      </header>
-
-      <main class="dashboard-grid">
-        <section class="panel panel-selector">
-          <div class="panel-heading">
-            <p class="panel-kicker">Step 1</p>
-            <h2>Select your need</h2>
+      <div class="app-shell">
+        <aside class="sidebar">
+          <div class="sidebar-brand">
+            <p class="sidebar-kicker">Project</p>
+            <h1>gmail-script</h1>
+            <p class="sidebar-copy">
+              Choose a section to work with Gmail actions from one focused dashboard.
+            </p>
           </div>
 
-          <div class="need-grid" id="needGrid">
+          <nav class="sidebar-nav" id="needGrid" aria-label="Dashboard sections">
             <button
-              class="need-card is-active"
+              class="nav-section is-active"
               type="button"
               data-need="mark-read"
             >
-              <span class="need-index">Need 1</span>
-              <strong>Mark all unread mails as read</strong>
+              <span class="nav-section-index">Section 1</span>
+              <strong>Mark unread mails as read</strong>
               <span>Clean the inbox in one action.</span>
             </button>
 
             <button
-              class="need-card"
+              class="nav-section"
               type="button"
               data-need="schedule-mail"
             >
-              <span class="need-index">Need 2</span>
-              <strong>Schedule one message on multiple future dates</strong>
-              <span>Reuse the same email for one recipient.</span>
+              <span class="nav-section-index">Section 2</span>
+              <strong>Schedule a mail on future dates</strong>
+              <span>Reuse one message for the same recipient.</span>
             </button>
+          </nav>
 
-            <article class="need-card need-card-placeholder" aria-hidden="true">
-              <span class="need-index">Future</span>
-              <strong>More needs can plug in here</strong>
-              <span>The layout is ready for the next workflow.</span>
-            </article>
-          </div>
-        </section>
+          <section class="status-card" id="tokenCard">
+            <div class="status-copy">
+              <p class="status-label">Connection status</p>
+              <h2 id="tokenTitle">Checking Gmail token...</h2>
+              <p id="tokenMessage">
+                The dashboard checks authentication before every action.
+              </p>
+              <p class="status-email" id="connectedEmail">Unknown</p>
+            </div>
 
-        <section class="panel panel-action">
-          <div class="panel-heading">
-            <p class="panel-kicker">Step 2</p>
-            <h2 id="panelTitle">Run the selected action</h2>
-          </div>
+            <dl class="status-metrics">
+              <div class="status-metric">
+                <dt>Mail connected</dt>
+                <dd id="mailConnected">No</dd>
+              </div>
+              <div class="status-metric">
+                <dt>Agent loaded</dt>
+                <dd id="agentLoaded">No</dd>
+              </div>
+              <div class="status-metric">
+                <dt>Pending mails count</dt>
+                <dd id="pendingMails">0</dd>
+              </div>
+              <div class="status-metric">
+                <dt>Next send</dt>
+                <dd id="nextSend">None</dd>
+              </div>
+            </dl>
 
-          <div class="action-view is-visible" data-view="mark-read">
+            <button class="primary-button" id="loginButton" type="button">
+              Connect mail
+            </button>
+          </section>
+        </aside>
+
+        <main class="main-panel">
+          <section class="content-panel action-view is-visible" data-view="mark-read">
+            <div class="panel-heading">
+              <p class="panel-kicker">Section 1</p>
+              <h2>Mark unread mails as read</h2>
+            </div>
+
             <p class="panel-copy">
-              This action finds every unread message in Gmail and removes the
-              unread label.
+              This action finds every unread message in Gmail and removes the unread
+              label so the inbox is clean again.
             </p>
+
             <button class="primary-button" id="markReadButton" type="button">
               Mark all unread as read
             </button>
-          </div>
+          </section>
 
-          <form class="action-view" data-view="schedule-mail" id="scheduleForm">
+          <form class="content-panel action-view" data-view="schedule-mail" id="scheduleForm">
+            <div class="panel-heading">
+              <p class="panel-kicker">Section 2</p>
+              <h2>Schedule one message on multiple future dates</h2>
+            </div>
+
             <p class="panel-copy">
-              Compose one message, choose one recipient, and queue it on several
+              Compose one message, choose one recipient, and queue it for several
               future dates.
             </p>
 
@@ -149,8 +146,8 @@
               Schedule message
             </button>
           </form>
-        </section>
-      </main>
+        </main>
+      </div>
 
       <section class="flash" id="flashMessage" aria-live="polite"></section>
     </div>
