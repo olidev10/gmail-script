@@ -1,5 +1,4 @@
 const fs = require("fs");
-const path = require("path");
 const { listPendingFiles } = require("./processPendingMails");
 const { disableAgentIfIdle } = require("./launchAgent");
 
@@ -36,10 +35,11 @@ function main() {
   try {
     const args = parseArgs(process.argv.slice(2));
     const recipient = String(args.to || "").trim().toLowerCase();
+    const removeAll = Boolean(args.all);
 
-    if (!recipient) {
+    if ((recipient && removeAll) || (!recipient && !removeAll)) {
       throw new Error(
-        "Usage: node cancelPendingMails.js --to recipient@example.com"
+        "Usage: node cancelPendingMails.js --to recipient@example.com | --all"
       );
     }
 
@@ -48,7 +48,10 @@ function main() {
 
     for (const filePath of pendingFiles) {
       const job = readJob(filePath);
-      if (String(job.to || "").trim().toLowerCase() !== recipient) {
+      if (
+        !removeAll &&
+        String(job.to || "").trim().toLowerCase() !== recipient
+      ) {
         continue;
       }
 
@@ -58,7 +61,11 @@ function main() {
 
     const unloaded = disableAgentIfIdle();
 
-    console.log(`Recipient: ${recipient}`);
+    if (removeAll) {
+      console.log("Filter: all pending mails");
+    } else {
+      console.log(`Recipient: ${recipient}`);
+    }
     console.log(`Pending mails removed: ${removed}`);
 
     if (unloaded) {

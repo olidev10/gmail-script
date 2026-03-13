@@ -294,6 +294,12 @@ npm run cancel-pending-mails -- --to recipient@example.com
 This only deletes files in `.scheduled-mails/pending`.
 It does not touch already sent mails or failed mails.
 
+To remove all queued mails:
+
+```bash
+npm run cancel-pending-mails -- --all
+```
+
 The agent now auto-manages itself:
 
 * when you queue at least one future mail, the macOS agent is loaded automatically
